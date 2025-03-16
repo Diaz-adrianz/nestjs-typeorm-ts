@@ -29,3 +29,10 @@ export class SignUpEmail {
   @IsNotEmpty()
   matchPassword: string;
 }
+
+export class SendEmailVerification {
+  @IsEmail()
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+}

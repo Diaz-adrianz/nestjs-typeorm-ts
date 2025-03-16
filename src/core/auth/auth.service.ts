@@ -17,6 +17,7 @@ import { CacheService } from 'src/lib/cache/cache.service';
 import { SignUpEmail } from './dto/sign-up.dto';
 import { MailService } from 'src/lib/mail/mail.service';
 import { generateOtp } from 'src/utils/generator.utils';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -81,15 +82,25 @@ export class AuthService {
     });
 
     await this.userRepo.insert(newUser);
+    await this.sendEmailVerification(newUser.email);
 
+    newUser.removePassword();
+    return newUser;
+  }
+
+  async sendEmailVerification(email: string) {
+    const checkUser = await this.userRepo.countBy({ email });
+    if (!checkUser) throw new NotFoundException('User not found');
+
+    const uuid = randomUUID();
     const otpCode = generateOtp();
     const otpExpiry = +this.configService.get('VERIFY_EMAIL_EXPIRED');
     const verifyPageURL =
       this.configService.get('CLIENT_PAGE_URL') + '/auth/verify-email';
 
-    await this.cacheService.set(`otp:${newUser.id}`, otpCode, otpExpiry * 1000);
+    await this.cacheService.set(`otp:${uuid}`, otpCode, otpExpiry * 1000);
     await this.mailService.send({
-      to: newUser.email,
+      to: email,
       subject: 'Email Verification',
       html: {
         fileName: 'email-verification.html',
@@ -100,9 +111,6 @@ export class AuthService {
         },
       },
     });
-
-    newUser.removePassword();
-    return newUser;
   }
 
   async refreshToken(body: RefreshToken) {
