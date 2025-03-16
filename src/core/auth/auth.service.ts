@@ -19,11 +19,15 @@ import { MailService } from 'src/lib/mail/mail.service';
 import { generateOtp } from 'src/utils/generator.utils';
 import { randomUUID } from 'crypto';
 import { OtpPayload } from 'src/types/cache.type';
+import { Role } from '../roles/entities/role.entity';
+import { UserRole } from '../users/entities/user-role.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(Role) private roleRepo: Repository<Role>,
+    @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
     private jwtService: JwtService,
     private configService: ConfigService,
     private cacheService: CacheService,
@@ -127,10 +131,30 @@ export class AuthService {
     if (data.otp !== body.otp)
       throw new BadRequestException('Invalid OTP. Please try again.');
 
+    const user = await this.userRepo.findOne({
+      where: { email: data.email },
+      relations: { roles: true },
+    });
+    if (!user) throw new NotFoundException();
+
     await this.userRepo.update(
-      { email: data.email },
+      { id: user.id },
       { isVerified: true, isActive: true }
     );
+
+    const role = await this.roleRepo.findOneBy({ name: 'user' });
+    if (role) {
+      await this.userRoleRepo.upsert(
+        {
+          isActive: true,
+          role: role,
+          user: user,
+        },
+        {
+          conflictPaths: ['user', 'role'],
+        }
+      );
+    }
   }
 
   async refreshToken(body: RefreshToken) {
