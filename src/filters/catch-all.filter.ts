@@ -6,30 +6,36 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { LoggerService } from 'src/lib/logger/logger.service';
 import { ErrorResponse } from 'src/types/response.type';
 
 @Catch()
 export class CatchAllFilter implements ExceptionFilter {
-  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+  constructor(
+    private readonly httpAdapterHost: HttpAdapterHost,
+    private readonly loggerService: LoggerService
+  ) {}
 
   catch(exception: Error, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
 
     const ctx = host.switchToHttp();
+    const isProd = process.env.NODE_ENV !== 'development';
 
-    let httpCode =
-        exception instanceof HttpException
-          ? exception.getStatus()
-          : HttpStatus.INTERNAL_SERVER_ERROR,
-      message =
-        httpCode == HttpStatus.INTERNAL_SERVER_ERROR &&
-        process.env.NODE_ENV != 'development'
-          ? 'Internal server error'
-          : (exception?.message ?? 'Unknown error'),
-      stack =
-        process.env.NODE_ENV == 'development'
-          ? exception?.stack?.split('\n')
-          : undefined;
+    const httpCode =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+
+    const message =
+      isProd && httpCode === HttpStatus.INTERNAL_SERVER_ERROR
+        ? 'Internal server error'
+        : (exception?.message ?? 'Unknown error');
+
+    const stack = isProd ? undefined : exception?.stack?.split('\n');
+
+    if (httpCode === HttpStatus.INTERNAL_SERVER_ERROR)
+      this.loggerService.error(exception);
 
     const response: ErrorResponse = {
       status: false,

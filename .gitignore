@@ -1,4 +1,5 @@
 .env
+logs
 
 # compiled output
 dist/*

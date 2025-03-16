@@ -18,6 +18,7 @@ import { JwtStrategy } from './core/auth/strategy/jwt.strategy';
 import { TypeormFilter } from './filters/typeorm.filter';
 import { ExistsInDatabaseConstraint } from './validators/exist-in-database.validator';
 import { MailModule } from './lib/mail/mail.module';
+import { LoggerModule } from './lib/logger/logger.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { MailModule } from './lib/mail/mail.module';
     PermissionsModule,
     AuthModule,
     MailModule,
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [
