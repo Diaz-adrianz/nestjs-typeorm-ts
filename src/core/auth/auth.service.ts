@@ -57,7 +57,7 @@ export class AuthService {
     await this.cacheService.set(
       `refresh:${user.id}`,
       tokens.refresh,
-      this.configService.get('JWT_REFRESH_EXPIRE')
+      +this.configService.get('JWT_REFRESH_EXPIRE') * 1000
     );
 
     return {
@@ -155,7 +155,11 @@ export class AuthService {
 
     const user = await this.getValidUser({ id: decoded.sub });
 
-    await this.cacheService.set(`refresh:${user.id}`, tokens.refresh);
+    await this.cacheService.set(
+      `refresh:${user.id}`,
+      tokens.refresh,
+      +this.configService.get('JWT_REFRESH_EXPIRE') * 1000
+    );
 
     return { tokens };
   }
