@@ -4,9 +4,9 @@ import { Permissions } from './permissions.decorator';
 import { PermissionsGuard } from 'src/core/auth/guards/permissions.guard';
 
 interface Params {
-  permissions: string[];
+  permissions?: string[];
 }
-export function Private({ permissions }: Params) {
+export function Private({ permissions = [] }: Params = {}) {
   return applyDecorators(
     Permissions(...permissions),
     UseGuards(JwtGuard, PermissionsGuard)

@@ -26,6 +26,8 @@ export class PermissionsGuard implements CanActivate {
       [context.getHandler(), context.getClass()]
     );
 
+    if (!permissions.length) return true;
+
     const req = context.switchToHttp().getRequest();
     const activeRole = (req.user as ReqUser)?.active_role;
 

@@ -6,7 +6,10 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from 'src/decorators/user.decorator';
@@ -18,11 +21,45 @@ import { BrowseQuery } from 'src/base/dto.base';
 import { Private } from 'src/decorators/private.decorator';
 import { transformBrowseQuery } from 'src/utils/browse-query.utils';
 import { CreateUserDto } from './dto/create-user.dto';
+import { FileFields } from 'src/decorators/file-fields.decorator';
+import { Files } from 'src/decorators/files.decorator';
+import { mbToBytes } from 'src/utils/converter.util';
 
 @Controller('users')
-@UseGuards(JwtGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('me')
+  @Private()
+  findMe(@User() user: ReqUser) {
+    return this.usersService.findOne(user.id);
+  }
+
+  @Patch('change-avatar')
+  @Private()
+  @FileFields({ avatar: 1 })
+  changeAvatar(
+    @Files({
+      avatar: {
+        maxBytes: mbToBytes(3),
+        mimeTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+      },
+    })
+    files: {
+      avatar?: Array<Express.Multer.File>;
+    }
+  ) {
+    return files;
+  }
+
+  @Patch(':user_id/assign-roles')
+  @Private({ permissions: ['users/assign-roles'] })
+  assignRoles(
+    @ParamUUID('user_id') userId: string,
+    @Body() body: AssignUserRolesDto
+  ) {
+    return this.usersService.assignRoles(userId, body.items);
+  }
 
   @Post()
   @Private({ permissions: ['users/create'] })
@@ -65,18 +102,5 @@ export class UsersController {
   @Private({ permissions: ['users/hard-delete'] })
   hardDelete(@ParamUUID('id') id: string) {
     return this.usersService.hardDelete(id);
-  }
-
-  @Get('me')
-  findMe(@User() user: ReqUser) {
-    return this.usersService.findOne(user.id);
-  }
-
-  @Patch(':user_id/assign-roles')
-  assignRoles(
-    @ParamUUID('user_id') userId: string,
-    @Body() body: AssignUserRolesDto
-  ) {
-    return this.usersService.assignRoles(userId, body.items);
   }
 }
