@@ -10,8 +10,8 @@ export class CacheService {
     return this.cacheManager.set(key, value, ttl);
   }
 
-  get<T>(key: string): T {
-    return this.cacheManager.get(key) as T;
+  get<T>(key: string): Promise<T | null> {
+    return this.cacheManager.get<T>(key);
   }
 
   del(key: string) {

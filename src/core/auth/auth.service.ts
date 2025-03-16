@@ -14,10 +14,11 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from 'src/types/jwt.type';
 import { CacheService } from 'src/lib/cache/cache.service';
-import { SignUpEmail } from './dto/sign-up.dto';
+import { SignUpEmail, VerifyEmail } from './dto/sign-up.dto';
 import { MailService } from 'src/lib/mail/mail.service';
 import { generateOtp } from 'src/utils/generator.utils';
 import { randomUUID } from 'crypto';
+import { OtpPayload } from 'src/types/cache.type';
 
 @Injectable()
 export class AuthService {
@@ -89,16 +90,21 @@ export class AuthService {
   }
 
   async sendEmailVerification(email: string) {
-    const checkUser = await this.userRepo.countBy({ email });
-    if (!checkUser) throw new NotFoundException('User not found');
+    const user = await this.userRepo.findOne({
+      where: { email },
+      select: { isVerified: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    if (user.isVerified)
+      throw new BadRequestException('Email already verified');
 
     const uuid = randomUUID();
     const otpCode = generateOtp();
     const otpExpiry = +this.configService.get('VERIFY_EMAIL_EXPIRED');
-    const verifyPageURL =
-      this.configService.get('CLIENT_PAGE_URL') + '/auth/verify-email';
+    const verifyPageURL = `${this.configService.get('CLIENT_PAGE_URL')}/auth/verify-email?token=${uuid}`;
+    const cachePayload: OtpPayload = { otp: otpCode, email };
 
-    await this.cacheService.set(`otp:${uuid}`, otpCode, otpExpiry * 1000);
+    await this.cacheService.set(`otp:${uuid}`, cachePayload, otpExpiry * 1000);
     await this.mailService.send({
       to: email,
       subject: 'Email Verification',
@@ -111,6 +117,20 @@ export class AuthService {
         },
       },
     });
+  }
+
+  async verifyEmail(body: VerifyEmail) {
+    const data = await this.cacheService.get<OtpPayload>(`otp:${body.token}`);
+    if (!data)
+      throw new ForbiddenException('Email verification access expired.');
+
+    if (data.otp !== body.otp)
+      throw new BadRequestException('Invalid OTP. Please try again.');
+
+    await this.userRepo.update(
+      { email: data.email },
+      { isVerified: true, isActive: true }
+    );
   }
 
   async refreshToken(body: RefreshToken) {

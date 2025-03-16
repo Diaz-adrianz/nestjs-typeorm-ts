@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  IsUUID,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -35,4 +36,15 @@ export class SendEmailVerification {
   @IsString()
   @IsNotEmpty()
   email: string;
+}
+
+export class VerifyEmail {
+  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+
+  @IsString()
+  @IsNotEmpty()
+  otp: string;
 }
