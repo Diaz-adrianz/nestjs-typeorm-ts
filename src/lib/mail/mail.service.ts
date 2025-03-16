@@ -1,18 +1,16 @@
 import { promises as fs } from 'fs';
 import { MailerService } from '@nestjs-modules/mailer';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Handlebars from 'handlebars';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class MailService {
   constructor(
     @Inject() private configService: ConfigService,
-    private readonly mailService: MailerService
+    private readonly mailService: MailerService,
+    private readonly loggerService: LoggerService
   ) {}
 
   async renderHtml(fileName: string, payload: Record<string, any>) {
@@ -25,8 +23,7 @@ export class MailService {
 
       return rendered;
     } catch (error) {
-      // TODO: logger
-      throw new InternalServerErrorException();
+      this.loggerService.error(error);
     }
   }
 
@@ -54,7 +51,7 @@ export class MailService {
         html: content,
       });
     } catch (error) {
-      // TODO: logger
+      this.loggerService.error(error);
     }
   }
 }
