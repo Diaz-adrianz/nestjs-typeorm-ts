@@ -15,6 +15,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from 'src/types/jwt.type';
 import { CacheService } from 'src/lib/cache/cache.service';
 import { SignUpEmail } from './dto/sign-up.dto';
+import { MailService } from 'src/lib/mail/mail.service';
+import { generateOtp } from 'src/utils/generator.utils';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +24,8 @@ export class AuthService {
     @InjectRepository(User) private userRepo: Repository<User>,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private cacheService: CacheService
+    private cacheService: CacheService,
+    private mailService: MailService
   ) {}
 
   async signInEmail(body: SignInEmail) {
@@ -78,6 +81,25 @@ export class AuthService {
     });
 
     await this.userRepo.insert(newUser);
+
+    const otpCode = generateOtp();
+    const otpExpiry = +this.configService.get('VERIFY_EMAIL_EXPIRED');
+    const verifyPageURL =
+      this.configService.get('CLIENT_PAGE_URL') + '/auth/verify-email';
+
+    await this.cacheService.set(`otp:${newUser.id}`, otpCode, otpExpiry * 1000);
+    await this.mailService.send({
+      to: newUser.email,
+      subject: 'Email Verification',
+      html: {
+        fileName: 'email-verification.html',
+        payload: {
+          otpCode,
+          verifyPageURL,
+          otpExpiry: otpExpiry / 60 + ' minutes',
+        },
+      },
+    });
 
     newUser.removePassword();
     return newUser;

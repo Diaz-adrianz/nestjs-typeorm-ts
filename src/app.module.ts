@@ -17,6 +17,7 @@ import { CacheModule } from './lib/cache/cache.module';
 import { JwtStrategy } from './core/auth/strategy/jwt.strategy';
 import { TypeormFilter } from './filters/typeorm.filter';
 import { ExistsInDatabaseConstraint } from './validators/exist-in-database.validator';
+import { MailModule } from './lib/mail/mail.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ExistsInDatabaseConstraint } from './validators/exist-in-database.valid
     UsersModule,
     PermissionsModule,
     AuthModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [
