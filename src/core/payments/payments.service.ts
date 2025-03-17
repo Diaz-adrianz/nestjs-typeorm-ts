@@ -1,26 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Payment } from './entities/payment.entity';
+import { Repository } from 'typeorm';
+import { BrowseQueryTransformed } from 'src/utils/browse-query.utils';
 
 @Injectable()
 export class PaymentsService {
+  constructor(
+    @InjectRepository(Payment) private paymentRepo: Repository<Payment>
+  ) {}
+
   create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
+    return this.paymentRepo.insert(createPaymentDto);
   }
 
-  findAll() {
-    return `This action returns all payments`;
+  findAll(query: BrowseQueryTransformed) {
+    return this.paymentRepo.findAndCount(query);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
+  findOne(id: string) {
+    return this.paymentRepo.findOneOrFail({ where: { id } });
   }
 
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
+  update(id: string, updatePaymentDto: UpdatePaymentDto) {
+    return this.paymentRepo.update({ id }, updatePaymentDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
+  softDelete(id: string) {
+    return this.paymentRepo.softDelete({ id });
+  }
+
+  restore(id: string) {
+    return this.paymentRepo.restore({ id });
+  }
+
+  hardDelete(id: string) {
+    return this.paymentRepo.delete({ id });
   }
 }
