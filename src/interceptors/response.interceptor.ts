@@ -6,7 +6,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { plainToInstance } from 'class-transformer';
+import {
+  classToPlain,
+  instanceToPlain,
+  plainToInstance,
+} from 'class-transformer';
 import { map, NotFoundError, Observable } from 'rxjs';
 import { BrowseQuery } from 'src/base/dto.base';
 import { RESPONSE_MESSAGE_METADATA } from 'src/decorators/response-message.decorator';
@@ -36,7 +40,7 @@ export class ResponseInterceptor<T>
           RESPONSE_MESSAGE_METADATA,
           context.getHandler()
         ) || 'success',
-      data = res;
+      data: any = instanceToPlain(res);
 
     if (
       Array.isArray(res) &&
@@ -50,13 +54,13 @@ export class ResponseInterceptor<T>
         const count = res[1] ?? 0;
 
         data = {
-          items: res[0],
+          items: instanceToPlain(res),
           page: q.page,
           limit: +q.limit,
           total_items: count,
           total_pages: Math.ceil(count / +q.limit) || 1,
         };
-      } else data = res[0];
+      } else data = instanceToPlain(res);
     }
 
     if (res instanceof DeleteResult || res instanceof UpdateResult) {

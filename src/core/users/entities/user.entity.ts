@@ -2,6 +2,8 @@ import { BaseEntity } from 'src/base/entity.base';
 import { Entity, Column, OneToMany, BeforeInsert, AfterLoad } from 'typeorm';
 import { UserRole } from './user-role.entity';
 import * as bcrypt from 'bcrypt';
+import { Exclude } from 'class-transformer';
+import { getMinioFullUrl } from 'src/utils/converter.util';
 
 export enum UserProvider {
   EMAIL = 'email',
@@ -19,6 +21,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   phone?: string;
 
+  @Exclude({ toPlainOnly: true })
   @Column({ nullable: true })
   password?: string;
 
@@ -47,6 +50,12 @@ export class User extends BaseEntity {
     onDelete: 'CASCADE',
   })
   roles: UserRole[];
+
+  avatarUrl?: string;
+  @AfterLoad()
+  loadAvatarUrl() {
+    if (this.avatar) this.avatarUrl = getMinioFullUrl(this.avatar);
+  }
 
   @BeforeInsert()
   async hashPassword() {
