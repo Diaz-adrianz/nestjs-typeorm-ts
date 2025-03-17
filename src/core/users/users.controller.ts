@@ -24,6 +24,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { FileFields } from 'src/decorators/file-fields.decorator';
 import { Files } from 'src/decorators/files.decorator';
 import { mbToBytes } from 'src/utils/converter.util';
+import { File } from 'src/pipes/files-validator.pipe';
 
 @Controller('users')
 export class UsersController {
@@ -43,13 +44,15 @@ export class UsersController {
       avatar: {
         maxBytes: mbToBytes(3),
         mimeTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+        count: 1,
       },
     })
     files: {
-      avatar?: Array<Express.Multer.File>;
-    }
+      avatar: Array<File>;
+    },
+    @User() user: ReqUser
   ) {
-    return files;
+    return this.usersService.changeAvatar(user.id, files.avatar[0]);
   }
 
   @Patch(':user_id/assign-roles')

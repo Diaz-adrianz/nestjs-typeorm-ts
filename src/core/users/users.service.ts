@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AssignUserRoleDto, UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,13 +10,36 @@ import { User } from './entities/user.entity';
 import { UserRole } from './entities/user-role.entity';
 import { Repository } from 'typeorm';
 import { BrowseQueryTransformed } from 'src/utils/browse-query.utils';
+import { MinioService } from 'src/lib/minio/minio.service';
+import { File } from 'src/pipes/files-validator.pipe';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
-    @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>
+    @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
+    private readonly minioService: MinioService
   ) {}
+
+  async changeAvatar(userId: string, file: File) {
+    const user = await this.findOne(userId);
+    const oldPath = user.avatar;
+
+    const uploaded = await this.minioService.upload({
+      bucket: 'user-avatars',
+      file: file,
+    });
+    user.avatar = uploaded.path;
+    await this.userRepo.save(user);
+
+    if (oldPath)
+      try {
+        await this.minioService.delete({
+          bucket: 'user-avatars',
+          path: oldPath,
+        });
+      } catch {}
+  }
 
   create(createUserDto: CreateUserDto) {
     return this.userRepo.insert(createUserDto);

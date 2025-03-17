@@ -19,6 +19,7 @@ import { TypeormFilter } from './filters/typeorm.filter';
 import { ExistsInDatabaseConstraint } from './validators/exist-in-database.validator';
 import { MailModule } from './lib/mail/mail.module';
 import { LoggerModule } from './lib/logger/logger.module';
+import { MinioModule } from './lib/minio/minio.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { LoggerModule } from './lib/logger/logger.module';
     AuthModule,
     MailModule,
     LoggerModule,
+    MinioModule,
   ],
   controllers: [AppController],
   providers: [

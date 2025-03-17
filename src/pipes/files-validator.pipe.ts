@@ -16,15 +16,15 @@ export interface FileValidationOptions {
   count?: number;
 }
 
+export type File = Express.Multer.File;
+
 @Injectable()
 export class FilesValidatorPipe implements PipeTransform {
   constructor(
     private readonly validators: Record<string, FileValidationOptions>
   ) {}
 
-  transform(
-    files: Record<string, Express.Multer.File[]>
-  ): Record<string, Express.Multer.File[]> {
+  transform(files: Record<string, File[]>): Record<string, File[]> {
     const fieldErrors: ValidationError[] = [];
 
     const pushError = (
