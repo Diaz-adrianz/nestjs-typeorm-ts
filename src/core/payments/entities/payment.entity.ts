@@ -9,25 +9,35 @@ export enum PaymentStatus {
   EXPIRED = 'expired',
 }
 
+export enum PaymentCurrency {
+  IDR = 'IDR',
+  USD = 'USD',
+}
+
+export enum PaymentCountryCode {
+  ID = 'ID',
+  US = 'US',
+}
+
 @Entity({ schema: 'transaction', name: 'payments' })
 export class Payment extends BaseEntity {
   @Column()
   amount: number;
 
-  @Column()
-  currency: string;
+  @Column({ type: 'enum', enum: PaymentCurrency })
+  currency: PaymentCurrency;
 
-  @Column()
-  countryCode: string;
+  @Column({ type: 'enum', enum: PaymentCountryCode })
+  countryCode: PaymentCountryCode;
 
   @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
   status: PaymentStatus;
 
   @Column({ nullable: true })
-  method?: boolean;
+  method?: string;
 
   @Column({ nullable: true })
-  channel?: boolean;
+  channel?: string;
 
   @Column({ nullable: true })
   description?: string;
@@ -37,6 +47,9 @@ export class Payment extends BaseEntity {
 
   @Column({ nullable: true })
   failedReason?: string;
+
+  @Column({ type: 'timestamp', default: () => 'NOW()' })
+  statusUpdatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.payments, {
     nullable: true,

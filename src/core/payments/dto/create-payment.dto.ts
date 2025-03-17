@@ -6,7 +6,11 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { PaymentStatus } from '../entities/payment.entity';
+import {
+  PaymentCountryCode,
+  PaymentCurrency,
+  PaymentStatus,
+} from '../entities/payment.entity';
 import { ExistsInDatabase } from 'src/validators/exist-in-database.validator';
 import { User } from 'src/core/users/entities/user.entity';
 
@@ -15,13 +19,13 @@ export class CreatePaymentDto {
   @IsNotEmpty()
   amount: number;
 
-  @IsString()
+  @IsEnum(PaymentCurrency)
   @IsNotEmpty()
-  currency: string;
+  currency: PaymentCurrency;
 
-  @IsString()
+  @IsEnum(PaymentCountryCode)
   @IsNotEmpty()
-  countryCode: string;
+  countryCode: PaymentCountryCode;
 
   @IsEnum(PaymentStatus)
   @IsNotEmpty()
@@ -29,11 +33,11 @@ export class CreatePaymentDto {
 
   @IsString()
   @IsOptional()
-  method?: boolean;
+  method?: string;
 
   @IsString()
   @IsOptional()
-  channel?: boolean;
+  channel?: string;
 
   @IsString()
   @IsOptional()
