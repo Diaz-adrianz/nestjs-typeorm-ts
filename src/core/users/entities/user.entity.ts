@@ -4,6 +4,7 @@ import { UserRole } from './user-role.entity';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import { getMinioFullUrl } from 'src/utils/converter.util';
+import { Payment } from 'src/core/payments/entities/payment.entity';
 
 export enum UserProvider {
   EMAIL = 'email',
@@ -46,10 +47,11 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   lastSignedInAt?: Date;
 
-  @OneToMany(() => UserRole, (userRole) => userRole.user, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => UserRole, (userRole) => userRole.user)
   roles: UserRole[];
+
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments: Payment[];
 
   avatarUrl?: string;
   @AfterLoad()

@@ -20,6 +20,7 @@ import { ExistsInDatabaseConstraint } from './validators/exist-in-database.valid
 import { MailModule } from './lib/mail/mail.module';
 import { LoggerModule } from './lib/logger/logger.module';
 import { MinioModule } from './lib/minio/minio.module';
+import { PaymentsModule } from './core/payments/payments.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { MinioModule } from './lib/minio/minio.module';
     MailModule,
     LoggerModule,
     MinioModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [

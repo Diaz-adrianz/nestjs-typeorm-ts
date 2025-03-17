@@ -14,9 +14,7 @@ export class Role extends BaseEntity {
   @Column({ default: false })
   isActive: boolean;
 
-  @OneToMany(() => UserRole, (userRole) => userRole.user, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => UserRole, (userRole) => userRole.user)
   users: UserRole[];
 
   @ManyToMany(() => Permission)
