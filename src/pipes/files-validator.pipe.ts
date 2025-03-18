@@ -16,7 +16,7 @@ export interface FileValidationOptions {
   count?: number;
 }
 
-export type File = Express.Multer.File;
+export type ReqFile = Express.Multer.File;
 
 @Injectable()
 export class FilesValidatorPipe implements PipeTransform {
@@ -24,7 +24,7 @@ export class FilesValidatorPipe implements PipeTransform {
     private readonly validators: Record<string, FileValidationOptions>
   ) {}
 
-  transform(files: Record<string, File[]>): Record<string, File[]> {
+  transform(files: Record<string, ReqFile[]>): Record<string, ReqFile[]> {
     const fieldErrors: ValidationError[] = [];
 
     const pushError = (
@@ -55,12 +55,23 @@ export class FilesValidatorPipe implements PipeTransform {
       }
     };
 
+    for (const field in this.validators) {
+      if (
+        this.validators[field].count &&
+        (!files ||
+          !(field in files) ||
+          files[field].length != this.validators[field].count)
+      )
+        pushError(
+          field,
+          'count',
+          `Exactly ${this.validators[field].count} file(s) is required.`
+        );
+    }
+
     for (const field in files) {
       if (!this.validators[field]) continue;
-      const { mimeTypes, maxBytes, count } = this.validators[field];
-
-      if (count && files[field].length != count)
-        pushError(field, 'count', `Exactly ${count} file(s) is required.`);
+      const { mimeTypes, maxBytes } = this.validators[field];
 
       files[field].forEach((file, i) => {
         if (!(mimeTypes as string[]).includes(file.mimetype)) {

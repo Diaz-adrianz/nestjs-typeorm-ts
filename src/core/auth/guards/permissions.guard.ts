@@ -1,12 +1,7 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
 import { Role } from 'src/core/roles/entities/role.entity';
+import { PERMISSIONS_STRICT } from 'src/decorators/permissions-strict.decorator';
 import { PERMISSIONS } from 'src/decorators/permissions.decorator';
 import { ReqUser } from 'src/types/jwt.type';
 import { DataSource } from 'typeorm';
@@ -15,27 +10,29 @@ import { DataSource } from 'typeorm';
 export class PermissionsGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    @Inject(DataSource) private readonly dataSource: DataSource
+    private readonly dataSource: DataSource
   ) {}
 
-  canActivate(
-    context: ExecutionContext
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const permissions = this.reflector.getAllAndOverride<string[]>(
       PERMISSIONS,
+      [context.getHandler(), context.getClass()]
+    );
+    const strict = this.reflector.getAllAndOverride<boolean>(
+      PERMISSIONS_STRICT,
       [context.getHandler(), context.getClass()]
     );
 
     if (!permissions.length) return true;
 
     const req = context.switchToHttp().getRequest();
-    const activeRole = (req.user as ReqUser)?.active_role;
+    const user = req.user as ReqUser;
 
     const roleRepo = this.dataSource.getRepository(Role);
-    return activeRole
-      ? roleRepo
+    const hasPermission = user.active_role?.id
+      ? await roleRepo
           .findOne({
-            where: { id: activeRole.id, isActive: true },
+            where: { id: user.active_role.id, isActive: true },
             relations: { permissions: true },
           })
           .then(
@@ -46,5 +43,9 @@ export class PermissionsGuard implements CanActivate {
                 .filter((val) => permissions.includes(val)).length > 0
           )
       : false;
+
+    user.hasPermission = hasPermission;
+
+    return strict ? hasPermission : true;
   }
 }

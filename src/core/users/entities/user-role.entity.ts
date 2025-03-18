@@ -14,10 +14,10 @@ export class UserRole {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @ManyToOne(() => User, (user) => user.roles)
+  @ManyToOne(() => User, (user) => user.roles, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToOne(() => Role, (role) => role.users)
+  @ManyToOne(() => Role, (role) => role.users, { onDelete: 'CASCADE' })
   role: Role;
 
   @Column({ default: false })

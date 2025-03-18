@@ -4,7 +4,7 @@ import {
   MinioClient,
   MinioService as NestMinioService,
 } from 'nestjs-minio-client';
-import { File } from 'src/pipes/files-validator.pipe';
+import { ReqFile } from 'src/pipes/files-validator.pipe';
 import { createHash } from 'crypto';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class MinioService {
     file,
     bucket,
   }: {
-    file: File;
+    file: ReqFile;
     bucket: string;
   }): Promise<{ bucket: string; fileName: string; path: string }> {
     try {
