@@ -40,6 +40,15 @@ export class Permissions1741499564752 implements Seeder {
         'restore',
         'assign-role',
       ],
+      payments: [
+        'create',
+        'find-all',
+        'find-one',
+        'update',
+        'soft-delete',
+        'hard-delete',
+        'restore',
+      ],
     };
 
     const repo = dataSource.getRepository(Permission);
