@@ -28,7 +28,9 @@ export class PaymentsService {
     const xenditParams: PaymentRequestParameters = {
       currency: payload.currency,
       amount: payload.amount,
-      referenceId: payment.id,
+      metadata: {
+        paymentId: payment.id,
+      },
     };
 
     if (payload.method == PaymentMethod.EWALLET) {
