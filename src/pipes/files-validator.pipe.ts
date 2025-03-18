@@ -55,12 +55,23 @@ export class FilesValidatorPipe implements PipeTransform {
       }
     };
 
+    for (const field in this.validators) {
+      if (
+        this.validators[field].count &&
+        (!files ||
+          !(field in files) ||
+          files[field].length != this.validators[field].count)
+      )
+        pushError(
+          field,
+          'count',
+          `Exactly ${this.validators[field].count} file(s) is required.`
+        );
+    }
+
     for (const field in files) {
       if (!this.validators[field]) continue;
-      const { mimeTypes, maxBytes, count } = this.validators[field];
-
-      if (count && files[field].length != count)
-        pushError(field, 'count', `Exactly ${count} file(s) is required.`);
+      const { mimeTypes, maxBytes } = this.validators[field];
 
       files[field].forEach((file, i) => {
         if (!(mimeTypes as string[]).includes(file.mimetype)) {

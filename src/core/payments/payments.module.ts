@@ -5,9 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Payment } from './entities/payment.entity';
 import { XenditModule } from 'src/lib/xendit/xendit.module';
 import { User } from '../users/entities/user.entity';
+import { MinioModule } from 'src/lib/minio/minio.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment, User]), XenditModule],
+  imports: [
+    TypeOrmModule.forFeature([Payment, User]),
+    XenditModule,
+    MinioModule,
+  ],
   controllers: [PaymentsController],
   providers: [PaymentsService],
 })
