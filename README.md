@@ -12,7 +12,7 @@ A ready to go boilerplate for starting Backend Development project with NestJS.
 - [x] Winston logger integration
 - [x] Upload file with multer
 - [x] File storage with Minio
-- [ ] Payment gateway
+- [x] Payment gateway
 - [ ] Jest utilization
 
 ## Run Locally
