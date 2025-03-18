@@ -16,7 +16,7 @@ export interface FileValidationOptions {
   count?: number;
 }
 
-export type File = Express.Multer.File;
+export type ReqFile = Express.Multer.File;
 
 @Injectable()
 export class FilesValidatorPipe implements PipeTransform {
@@ -24,7 +24,7 @@ export class FilesValidatorPipe implements PipeTransform {
     private readonly validators: Record<string, FileValidationOptions>
   ) {}
 
-  transform(files: Record<string, File[]>): Record<string, File[]> {
+  transform(files: Record<string, ReqFile[]>): Record<string, ReqFile[]> {
     const fieldErrors: ValidationError[] = [];
 
     const pushError = (

@@ -11,7 +11,7 @@ import { UserRole } from './entities/user-role.entity';
 import { Repository } from 'typeorm';
 import { BrowseQueryTransformed } from 'src/utils/browse-query.utils';
 import { MinioService } from 'src/lib/minio/minio.service';
-import { File } from 'src/pipes/files-validator.pipe';
+import { ReqFile } from 'src/pipes/files-validator.pipe';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +21,7 @@ export class UsersService {
     private readonly minioService: MinioService
   ) {}
 
-  async changeAvatar(userId: string, file: File) {
+  async changeAvatar(userId: string, file: ReqFile) {
     const user = await this.findOne(userId);
     const oldPath = user.avatar;
 

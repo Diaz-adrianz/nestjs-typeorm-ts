@@ -6,15 +6,10 @@ import {
   Patch,
   Post,
   Query,
-  UploadedFile,
-  UploadedFiles,
-  UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from 'src/decorators/user.decorator';
 import { ReqUser } from 'src/types/jwt.type';
-import { JwtGuard } from '../auth/guards/jwt.guard';
 import { AssignUserRolesDto, UpdateUserDto } from './dto/update-user.dto';
 import { ParamUUID } from 'src/decorators/param.decorator';
 import { BrowseQuery } from 'src/base/dto.base';
@@ -24,7 +19,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { FileFields } from 'src/decorators/file-fields.decorator';
 import { Files } from 'src/decorators/files.decorator';
 import { mbToBytes } from 'src/utils/converter.util';
-import { File } from 'src/pipes/files-validator.pipe';
+import { ReqFile } from 'src/pipes/files-validator.pipe';
 
 @Controller('users')
 export class UsersController {
@@ -48,7 +43,7 @@ export class UsersController {
       },
     })
     files: {
-      avatar: Array<File>;
+      avatar: Array<ReqFile>;
     },
     @User() user: ReqUser
   ) {
