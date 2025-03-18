@@ -41,20 +41,20 @@ export class PaymentsController {
 
     if (body.data.id) {
       if (body.event == 'payment.succeeded')
-        this.paymentsService.updateByReferenceId(body.data.id, {
+        return this.paymentsService.updateByReferenceId(body.data.id, {
           status: PaymentStatus.SUCCEEDED,
         });
       else if (body.event == 'payment.failed')
-        this.paymentsService.updateByReferenceId(body.data.id, {
+        return this.paymentsService.updateByReferenceId(body.data.id, {
           status: PaymentStatus.FAILED,
           failedReason: body.data.failure_code ?? '',
         });
       else if (body.event == 'payment_method.expired')
-        this.paymentsService.updateByReferenceId(body.data.id, {
+        return this.paymentsService.updateByReferenceId(body.data.id, {
           status: PaymentStatus.EXPIRED,
         });
       else if (body.event == 'payment_method.failed')
-        this.paymentsService.updateByReferenceId(body.data.id, {
+        return this.paymentsService.updateByReferenceId(body.data.id, {
           status: PaymentStatus.FAILED,
           failedReason: body.data.failure_code ?? '',
         });

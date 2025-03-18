@@ -125,12 +125,25 @@ export class PaymentsService {
     return payment;
   }
 
-  update(id: string, updatePaymentDto: UpdatePaymentDto) {
-    return this.paymentRepo.update({ id }, updatePaymentDto);
+  async update(id: string, updatePaymentDto: UpdatePaymentDto) {
+    const data = await this.findOne(id);
+    if (updatePaymentDto.status && updatePaymentDto.status != data.status)
+      data.statusUpdatedAt = new Date();
+    Object.assign(data, updatePaymentDto);
+
+    return this.paymentRepo.save(data);
   }
 
-  updateByReferenceId(referenceId: string, updatePaymentDto: UpdatePaymentDto) {
-    return this.paymentRepo.update({ referenceId }, updatePaymentDto);
+  async updateByReferenceId(
+    referenceId: string,
+    updatePaymentDto: UpdatePaymentDto
+  ) {
+    const data = await this.paymentRepo.findOneByOrFail({ referenceId });
+    if (updatePaymentDto.status && updatePaymentDto.status != data.status)
+      data.statusUpdatedAt = new Date();
+    Object.assign(data, updatePaymentDto);
+
+    return this.paymentRepo.save(data);
   }
 
   softDelete(id: string) {
