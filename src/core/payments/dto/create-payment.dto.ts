@@ -9,6 +9,7 @@ import {
 import {
   PaymentCountryCode,
   PaymentCurrency,
+  PaymentMethod,
   PaymentStatus,
 } from '../entities/payment.entity';
 import { ExistsInDatabase } from 'src/validators/exist-in-database.validator';
@@ -31,9 +32,9 @@ export class CreatePaymentDto {
   @IsNotEmpty()
   status: PaymentStatus = PaymentStatus.PENDING;
 
-  @IsString()
+  @IsEnum(PaymentMethod)
   @IsOptional()
-  method?: string;
+  method?: PaymentMethod;
 
   @IsString()
   @IsOptional()
