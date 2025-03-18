@@ -54,13 +54,13 @@ export class ResponseInterceptor<T>
         const count = res[1] ?? 0;
 
         data = {
-          items: instanceToPlain(res),
-          page: q.page,
+          items: instanceToPlain(res[0]),
+          page: +q.page,
           limit: +q.limit,
           total_items: count,
           total_pages: Math.ceil(count / +q.limit) || 1,
         };
-      } else data = instanceToPlain(res);
+      } else data = instanceToPlain(res[0]);
     }
 
     if (res instanceof DeleteResult || res instanceof UpdateResult) {

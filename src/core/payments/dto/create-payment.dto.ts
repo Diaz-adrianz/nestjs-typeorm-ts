@@ -1,10 +1,13 @@
 import {
+  IsDate,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
   IsUUID,
+  ValidateIf,
 } from 'class-validator';
 import {
   PaymentCountryCode,
@@ -33,12 +36,12 @@ export class CreatePaymentDto {
   status: PaymentStatus = PaymentStatus.PENDING;
 
   @IsEnum(PaymentMethod)
-  @IsOptional()
-  method?: PaymentMethod;
+  @IsNotEmpty()
+  method: PaymentMethod;
 
   @IsString()
-  @IsOptional()
-  channel?: string;
+  @IsNotEmpty()
+  channel: string;
 
   @IsString()
   @IsOptional()
@@ -53,4 +56,20 @@ export class CreatePaymentDto {
   @IsString()
   @IsOptional()
   userId?: string;
+
+  @IsDate()
+  @IsOptional()
+  expiredAt?: Date;
+
+  @ValidateIf((o) => o.method == PaymentMethod.EWALLET)
+  @IsUrl()
+  @IsString()
+  @IsNotEmpty()
+  succeedCallbackUrl?: string;
+
+  @ValidateIf((o) => o.method == PaymentMethod.EWALLET)
+  @IsUrl()
+  @IsString()
+  @IsNotEmpty()
+  failedCallbackUrl?: string;
 }

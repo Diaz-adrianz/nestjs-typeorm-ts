@@ -26,7 +26,13 @@ const fillQuery = (obj: any, columns: string, value: any) => {
   return obj;
 };
 
-export type BrowseQueryTransformed = FindManyOptions;
+export type BrowseQueryTransformed = {
+  where: Record<string, any> | undefined;
+  skip: number | undefined;
+  take: number | undefined;
+  order: Record<string, any> | undefined;
+  withDeleted: boolean | undefined;
+};
 
 export const transformBrowseQuery = (
   query: BrowseQuery

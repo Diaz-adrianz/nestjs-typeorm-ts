@@ -95,6 +95,9 @@ importers:
       winston-daily-rotate-file:
         specifier: ^5.0.0
         version: 5.0.0(winston@3.17.0)
+      xendit-node:
+        specifier: ^6.3.0
+        version: 6.3.0
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0
@@ -4812,6 +4815,10 @@ packages:
   write-file-atomic@4.0.2:
     resolution: {integrity: sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+
+  xendit-node@6.3.0:
+    resolution: {integrity: sha512-1L2aoUu9kW7zG5QnwCfTfTqj5snX2biW5XmtwstgnpUQveoUZgL67dTDoFui5IryWYDVzKsMq1jASFHcd+J6CQ==}
+    engines: {node: '>=18.0.0'}
 
   xml2js@0.5.0:
     resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
@@ -10392,6 +10399,8 @@ snapshots:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 3.0.7
+
+  xendit-node@6.3.0: {}
 
   xml2js@0.5.0:
     dependencies:

@@ -21,6 +21,7 @@ import { MailModule } from './lib/mail/mail.module';
 import { LoggerModule } from './lib/logger/logger.module';
 import { MinioModule } from './lib/minio/minio.module';
 import { PaymentsModule } from './core/payments/payments.module';
+import { XenditModule } from './lib/xendit/xendit.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { PaymentsModule } from './core/payments/payments.module';
     LoggerModule,
     MinioModule,
     PaymentsModule,
+    XenditModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/base/entity.base';
 import { User } from 'src/core/users/entities/user.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
+import { PaymentRequest } from 'xendit-node/payment_request/models';
 
 export enum PaymentStatus {
   PENDING = 'pending',
@@ -19,6 +20,12 @@ export enum PaymentCountryCode {
   US = 'US',
 }
 
+export enum PaymentMethod {
+  EWALLET = 'ewallet',
+  VIRTUAL_ACCOUNT = 'virtual_account',
+  OVER_THE_COUNTER = 'over_the_counter',
+}
+
 @Entity({ schema: 'transaction', name: 'payments' })
 export class Payment extends BaseEntity {
   @Column()
@@ -33,8 +40,8 @@ export class Payment extends BaseEntity {
   @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
   status: PaymentStatus;
 
-  @Column({ nullable: true })
-  method?: string;
+  @Column({ type: 'enum', enum: PaymentMethod, nullable: true })
+  method?: PaymentMethod;
 
   @Column({ nullable: true })
   channel?: string;
@@ -56,4 +63,6 @@ export class Payment extends BaseEntity {
     onDelete: 'SET NULL',
   })
   user?: User;
+
+  xenditPayment?: PaymentRequest;
 }

@@ -57,7 +57,8 @@
     "typeorm-extension": "^3.7.0",
     "typeorm-naming-strategies": "^4.1.0",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "xendit-node": "^6.3.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
