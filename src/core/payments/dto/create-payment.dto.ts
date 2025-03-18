@@ -17,6 +17,7 @@ import {
 } from '../entities/payment.entity';
 import { ExistsInDatabase } from 'src/validators/exist-in-database.validator';
 import { User } from 'src/core/users/entities/user.entity';
+import { Transform } from 'class-transformer';
 
 export class CreatePaymentDto {
   @IsNumber()
@@ -57,6 +58,7 @@ export class CreatePaymentDto {
   @IsOptional()
   userId?: string;
 
+  @Transform(({ value }) => (value ? new Date(value) : null))
   @IsDate()
   @IsOptional()
   expiredAt?: Date;

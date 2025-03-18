@@ -1,10 +1,11 @@
 import { BaseEntity } from 'src/base/entity.base';
 import { User } from 'src/core/users/entities/user.entity';
-import { BeforeUpdate, Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { PaymentRequest } from 'xendit-node/payment_request/models';
 
 export enum PaymentStatus {
   PENDING = 'pending',
+  PAID = 'paid',
   SUCCEEDED = 'succeeded',
   FAILED = 'failed',
   EXPIRED = 'expired',
@@ -22,6 +23,7 @@ export enum PaymentCountryCode {
 
 export enum PaymentMethod {
   EWALLET = 'ewallet',
+  MANUAL_TRANSFER = 'manual_transfer',
   VIRTUAL_ACCOUNT = 'virtual_account',
   OVER_THE_COUNTER = 'over_the_counter',
 }
@@ -44,6 +46,9 @@ export class Payment extends BaseEntity {
   method?: PaymentMethod;
 
   @Column({ nullable: true })
+  transferProof?: string;
+
+  @Column({ nullable: true })
   channel?: string;
 
   @Column({ nullable: true })
@@ -54,6 +59,9 @@ export class Payment extends BaseEntity {
 
   @Column({ nullable: true })
   failedReason?: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  expiredAt?: Date;
 
   @Column({ type: 'timestamp', default: () => 'NOW()' })
   statusUpdatedAt: Date;
