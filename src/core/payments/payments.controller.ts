@@ -8,16 +8,19 @@ import {
   Query,
   Req,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { ParamUUID } from 'src/decorators/param.decorator';
 import { Private } from 'src/decorators/private.decorator';
-import { transformBrowseQuery } from 'src/utils/browse-query.utils';
+import { fillQuery, transformBrowseQuery } from 'src/utils/browse-query.utils';
 import { BrowseQuery } from 'src/base/dto.base';
 import { ConfigService } from '@nestjs/config';
 import { PaymentStatus } from './entities/payment.entity';
+import { User } from 'src/decorators/user.decorator';
+import { ReqUser } from 'src/types/jwt.type';
 
 @Controller('payments')
 export class PaymentsController {
@@ -68,16 +71,20 @@ export class PaymentsController {
   }
 
   @Get()
-  @Private({ permissions: ['payments/find-all'] })
-  findAll(@Query() query: BrowseQuery) {
+  @Private({ permissions: ['payments/find-all'], strict: false })
+  findAll(@User() user: ReqUser, @Query() query: BrowseQuery) {
     const q = transformBrowseQuery(query);
+    if (!user.hasPermission) fillQuery(q.where, 'user.id', user.id);
     return this.paymentsService.findAll(q);
   }
 
   @Get(':id')
-  @Private({ permissions: ['payments/find-one'] })
-  findOne(@ParamUUID('id') id: string) {
-    return this.paymentsService.findOne(id);
+  @Private({ permissions: ['payments/find-one'], strict: false })
+  async findOne(@User() user: ReqUser, @ParamUUID('id') id: string) {
+    const data = await this.paymentsService.findOne(id);
+    if (!user.hasPermission && (!data.user || data.user.id != user.id))
+      throw new NotFoundException();
+    return data;
   }
 
   @Patch(':id')

@@ -12,7 +12,7 @@ import {
   Not,
 } from 'typeorm';
 
-const fillQuery = (obj: any, columns: string, value: any) => {
+export const fillQuery = (obj: any, columns: string, value: any) => {
   const keys = columns.split('.');
   let current = obj;
 

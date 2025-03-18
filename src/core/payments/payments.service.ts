@@ -84,11 +84,12 @@ export class PaymentsService {
       };
     }
 
-    const res = await this.xenditService.createPaymentRequest({
-      data: xenditParams,
-    });
-
-    payment.referenceId = res.id;
+    if (payload.method != PaymentMethod.MANUAL_TRANSFER) {
+      const res = await this.xenditService.createPaymentRequest({
+        data: xenditParams,
+      });
+      payment.referenceId = res.id;
+    }
 
     return this.paymentRepo.save(payment);
   }

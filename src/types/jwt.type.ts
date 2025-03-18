@@ -12,4 +12,5 @@ export type ReqUser = {
   id: string;
   username: string;
   active_role?: Role;
+  hasPermission?: boolean;
 };
