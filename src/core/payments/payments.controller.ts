@@ -6,6 +6,8 @@ import {
   Patch,
   Delete,
   Query,
+  Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -14,10 +16,50 @@ import { ParamUUID } from 'src/decorators/param.decorator';
 import { Private } from 'src/decorators/private.decorator';
 import { transformBrowseQuery } from 'src/utils/browse-query.utils';
 import { BrowseQuery } from 'src/base/dto.base';
+import { ConfigService } from '@nestjs/config';
+import { PaymentStatus } from './entities/payment.entity';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+  constructor(
+    private readonly paymentsService: PaymentsService,
+    private readonly configService: ConfigService
+  ) {}
+
+  @Post('xendit-webhook')
+  xenditWebhook(@Req() req: Request, @Body() body: any) {
+    const incomingToken = req.headers.get('x-callback-token');
+    const verificatorToken = this.configService.getOrThrow(
+      'XENDIT_WEBHOOK_VERIFICATION_TOKEN'
+    );
+
+    if (!incomingToken)
+      throw new ForbiddenException('Callback token not present');
+
+    if (incomingToken !== verificatorToken)
+      throw new ForbiddenException('You are not Xendit');
+
+    if (body.data.id) {
+      if (body.event == 'payment.succeeded')
+        this.paymentsService.updateByReferenceId(body.data.id, {
+          status: PaymentStatus.SUCCEEDED,
+        });
+      else if (body.event == 'payment.failed')
+        this.paymentsService.updateByReferenceId(body.data.id, {
+          status: PaymentStatus.FAILED,
+          failedReason: body.data.failure_code ?? '',
+        });
+      else if (body.event == 'payment_method.expired')
+        this.paymentsService.updateByReferenceId(body.data.id, {
+          status: PaymentStatus.EXPIRED,
+        });
+      else if (body.event == 'payment_method.failed')
+        this.paymentsService.updateByReferenceId(body.data.id, {
+          status: PaymentStatus.FAILED,
+          failedReason: body.data.failure_code ?? '',
+        });
+    }
+  }
 
   @Post()
   @Private({ permissions: ['payments/create'] })

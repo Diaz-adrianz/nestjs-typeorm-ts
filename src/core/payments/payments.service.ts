@@ -129,6 +129,10 @@ export class PaymentsService {
     return this.paymentRepo.update({ id }, updatePaymentDto);
   }
 
+  updateByReferenceId(referenceId: string, updatePaymentDto: UpdatePaymentDto) {
+    return this.paymentRepo.update({ referenceId }, updatePaymentDto);
+  }
+
   softDelete(id: string) {
     return this.paymentRepo.softDelete({ id });
   }

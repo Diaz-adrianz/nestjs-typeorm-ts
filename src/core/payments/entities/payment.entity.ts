@@ -1,6 +1,6 @@
 import { BaseEntity } from 'src/base/entity.base';
 import { User } from 'src/core/users/entities/user.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { BeforeUpdate, Column, Entity, ManyToOne } from 'typeorm';
 import { PaymentRequest } from 'xendit-node/payment_request/models';
 
 export enum PaymentStatus {
