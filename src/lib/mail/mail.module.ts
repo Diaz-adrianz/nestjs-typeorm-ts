@@ -10,10 +10,10 @@ import { ConfigService } from '@nestjs/config';
       useFactory: async (configService: ConfigService) => {
         return {
           transport: {
-            host: configService.get('MAIL_HOST'),
+            host: configService.getOrThrow('MAIL_HOST'),
             auth: {
-              user: configService.get('MAIL_USER'),
-              pass: configService.get('MAIL_PASSWORD'),
+              user: configService.getOrThrow('MAIL_USER'),
+              pass: configService.getOrThrow('MAIL_PASSWORD'),
             },
           },
         };

@@ -13,7 +13,7 @@ import { createKeyv } from '@keyv/redis';
         return {
           stores: [
             createKeyv(
-              `redis://${configService.get('REDIS_HOST')}:${configService.get('REDIS_PORT')}`
+              `redis://${configService.getOrThrow('REDIS_HOST')}:${configService.getOrThrow('REDIS_PORT')}`
             ),
           ],
         };

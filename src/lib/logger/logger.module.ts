@@ -26,7 +26,7 @@ const { combine, timestamp, printf, colorize, errors } = format;
         transports: [
           new transports.Console(),
           new DailyRotateFile({
-            filename: configService.get('LOGGER_FOLDER') + '%DATE%.log',
+            filename: configService.getOrThrow('LOGGER_FOLDER') + '%DATE%.log',
             level: 'error',
             datePattern: 'YYYY-MM-DD',
             zippedArchive: false,

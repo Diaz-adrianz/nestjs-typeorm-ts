@@ -61,7 +61,7 @@ export class AuthService {
     await this.cacheService.set(
       `refresh:${user.id}`,
       tokens.refresh,
-      +this.configService.get('JWT_REFRESH_EXPIRE') * 1000
+      +this.configService.getOrThrow('JWT_REFRESH_EXPIRE') * 1000
     );
 
     return {
@@ -104,8 +104,8 @@ export class AuthService {
 
     const uuid = randomUUID();
     const otpCode = generateOtp();
-    const otpExpiry = +this.configService.get('VERIFY_EMAIL_EXPIRED');
-    const verifyPageURL = `${this.configService.get('CLIENT_PAGE_URL')}/auth/verify-email?token=${uuid}`;
+    const otpExpiry = +this.configService.getOrThrow('VERIFY_EMAIL_EXPIRED');
+    const verifyPageURL = `${this.configService.getOrThrow('CLIENT_PAGE_URL')}/auth/verify-email?token=${uuid}`;
     const cachePayload: OtpPayload = { otp: otpCode, email };
 
     await this.cacheService.set(`otp:${uuid}`, cachePayload, otpExpiry * 1000);
@@ -162,7 +162,7 @@ export class AuthService {
 
     try {
       this.jwtService.verify<JwtPayload>(body.refresh, {
-        secret: this.configService.get('JWT_REFRESH_SECRET'),
+        secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
       });
     } catch {
       throw new UnauthorizedException('Invalid session. Please re-login.');
@@ -182,7 +182,7 @@ export class AuthService {
     await this.cacheService.set(
       `refresh:${user.id}`,
       tokens.refresh,
-      +this.configService.get('JWT_REFRESH_EXPIRE') * 1000
+      +this.configService.getOrThrow('JWT_REFRESH_EXPIRE') * 1000
     );
 
     return { tokens };
@@ -214,9 +214,9 @@ export class AuthService {
         username: payload.username,
       },
       {
-        secret: this.configService.get('JWT_ACCESS_SECRET'),
-        expiresIn: +this.configService.get('JWT_ACCESS_EXPIRE'),
-        issuer: this.configService.get('JWT_ISSUER'),
+        secret: this.configService.getOrThrow('JWT_ACCESS_SECRET'),
+        expiresIn: +this.configService.getOrThrow('JWT_ACCESS_EXPIRE'),
+        issuer: this.configService.getOrThrow('JWT_ISSUER'),
       }
     );
   }
@@ -228,9 +228,9 @@ export class AuthService {
         username: payload.username,
       },
       {
-        secret: this.configService.get('JWT_REFRESH_SECRET'),
-        expiresIn: +this.configService.get('JWT_REFRESH_EXPIRE'),
-        issuer: this.configService.get('JWT_ISSUER'),
+        secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
+        expiresIn: +this.configService.getOrThrow('JWT_REFRESH_EXPIRE'),
+        issuer: this.configService.getOrThrow('JWT_ISSUER'),
       }
     );
   }
