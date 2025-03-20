@@ -39,11 +39,6 @@ export class SendEmailVerification {
 }
 
 export class VerifyEmail {
-  @IsUUID()
-  @IsString()
-  @IsNotEmpty()
-  token: string;
-
   @IsString()
   @IsNotEmpty()
   otp: string;

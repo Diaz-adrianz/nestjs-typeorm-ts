@@ -102,13 +102,11 @@ export class AuthService {
     if (user.isVerified)
       throw new BadRequestException('Email already verified');
 
-    const uuid = randomUUID();
     const otpCode = generateOtp();
     const otpExpiry = +this.configService.getOrThrow('VERIFY_EMAIL_EXPIRED');
-    const verifyPageURL = `${this.configService.getOrThrow('CLIENT_PAGE_URL')}/auth/verify-email?token=${uuid}`;
-    const cachePayload: OtpPayload = { otp: otpCode, email };
+    const verifyPageURL = `${this.configService.getOrThrow('CLIENT_PAGE_URL')}/auth/verify-email`;
 
-    await this.cacheService.set(`otp:${uuid}`, cachePayload, otpExpiry * 1000);
+    await this.cacheService.set(`otp:${otpCode}`, email, otpExpiry * 1000);
     await this.mailService.send({
       to: email,
       subject: 'Email Verification',
@@ -124,15 +122,11 @@ export class AuthService {
   }
 
   async verifyEmail(body: VerifyEmail) {
-    const data = await this.cacheService.get<OtpPayload>(`otp:${body.token}`);
-    if (!data)
-      throw new ForbiddenException('Email verification access expired.');
-
-    if (data.otp !== body.otp)
-      throw new BadRequestException('Invalid OTP. Please try again.');
+    const email = await this.cacheService.get<string>(`otp:${body.otp}`);
+    if (!email) throw new ForbiddenException('Invalid OTP, please try again.');
 
     const user = await this.userRepo.findOne({
-      where: { email: data.email },
+      where: { email },
       relations: { roles: true },
     });
     if (!user) throw new NotFoundException();
