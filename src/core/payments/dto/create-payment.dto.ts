@@ -34,7 +34,7 @@ export class CreatePaymentDto {
 
   @IsEnum(PaymentStatus)
   @IsNotEmpty()
-  status: PaymentStatus = PaymentStatus.PENDING;
+  status: PaymentStatus;
 
   @IsEnum(PaymentMethod)
   @IsNotEmpty()
