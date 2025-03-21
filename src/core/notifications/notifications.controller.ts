@@ -59,6 +59,12 @@ export class NotificationsController {
     return this.notificationsService.findOne(id);
   }
 
+  @Get(':id/notify')
+  @Private({ permissions: ['notifications/notify'] })
+  notify(@ParamUUID('id') id: string) {
+    return this.notificationsService.notify(id);
+  }
+
   @Patch(':id')
   @Private({ permissions: ['notifications/update'] })
   update(@ParamUUID('id') id: string, @Body() body: UpdateNotificationDto) {

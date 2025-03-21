@@ -26,8 +26,6 @@ export class FirebaseService {
   }
 
   async sendMessage(tokens: string[], notification: Notification) {
-    console.log(tokens);
-    console.log(notification);
     const message: MulticastMessage = {
       notification,
       tokens,
@@ -35,7 +33,10 @@ export class FirebaseService {
 
     try {
       const result = await this.messaging.sendEachForMulticast(message);
-      console.log(JSON.stringify(result, null, 3));
+      result.responses.forEach(({ error }) => {
+        if (error) this.loggerService.error(error);
+      });
+
       return result;
     } catch (err) {
       this.loggerService.error(err);
