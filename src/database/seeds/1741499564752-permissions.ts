@@ -49,6 +49,15 @@ export class Permissions1741499564752 implements Seeder {
         'hard-delete',
         'restore',
       ],
+      notifications: [
+        'create',
+        'find-all',
+        'find-one',
+        'update',
+        'soft-delete',
+        'hard-delete',
+        'restore',
+      ],
     };
 
     const repo = dataSource.getRepository(Permission);
