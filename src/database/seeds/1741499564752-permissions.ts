@@ -57,6 +57,7 @@ export class Permissions1741499564752 implements Seeder {
         'soft-delete',
         'hard-delete',
         'restore',
+        'set-users',
       ],
     };
 

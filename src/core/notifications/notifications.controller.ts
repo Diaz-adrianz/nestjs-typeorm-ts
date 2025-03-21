@@ -4,19 +4,18 @@ import {
   Post,
   Body,
   Patch,
-  Param,
   Delete,
   Query,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import {
   CreateNotificationDto,
-  CreateToken,
+  CreateTokenDto,
 } from './dto/create-notification.dto';
 import {
-  MarkRead,
+  MarkReadDto,
+  SetUsersDto,
   UpdateNotificationDto,
-  UpdateToken,
 } from './dto/update-notification.dto';
 import { Private } from 'src/decorators/private.decorator';
 import { ParamUUID } from 'src/decorators/param.decorator';
@@ -31,15 +30,15 @@ export class NotificationsController {
 
   @Post('create-token')
   @Private()
-  createToken(@User() user: ReqUser, @Body() body: CreateToken) {}
-
-  @Patch('update-token')
-  @Private()
-  updateToken(@User() user: ReqUser, @Body() body: UpdateToken) {}
+  createToken(@User() user: ReqUser, @Body() body: CreateTokenDto) {
+    return this.notificationsService.createToken(user.id, body);
+  }
 
   @Patch('mark-read')
   @Private()
-  markRead(@User() user: ReqUser, @Body() body: MarkRead) {}
+  markRead(@User() user: ReqUser, @Body() body: MarkReadDto) {
+    return this.notificationsService.markRead(user.id, body);
+  }
 
   @Post()
   @Private({ permissions: ['notifications/create'] })
@@ -51,7 +50,7 @@ export class NotificationsController {
   @Private({ permissions: ['notifications/find-all'], strict: false })
   findAll(@User() user: ReqUser, @Query() query: BrowseQuery) {
     const q = transformBrowseQuery(query);
-    if (!user.hasPermission) fillQuery(q.where, 'users.id', user.id);
+    if (!user.hasPermission) fillQuery(q.where, 'users.user.id', user.id);
     return this.notificationsService.findAll(q);
   }
 
@@ -65,6 +64,12 @@ export class NotificationsController {
   @Private({ permissions: ['notifications/update'] })
   update(@ParamUUID('id') id: string, @Body() body: UpdateNotificationDto) {
     return this.notificationsService.update(id, body);
+  }
+
+  @Patch(':id/set-users')
+  @Private({ permissions: ['notifications/set-users'] })
+  setUsers(@ParamUUID('id') id: string, @Body() body: SetUsersDto) {
+    return this.notificationsService.setUsers(id, body);
   }
 
   @Delete(':id/soft')
