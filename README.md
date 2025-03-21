@@ -13,6 +13,8 @@ A ready to go boilerplate for starting Backend Development project with NestJS.
 - [x] Upload file with multer
 - [x] File storage with Minio
 - [x] Payment gateway
+- [x] Firebase notification
+- [ ] Google auth
 - [ ] Jest utilization
 
 ## Run Locally

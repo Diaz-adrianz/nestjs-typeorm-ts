@@ -15,7 +15,7 @@ import { map, NotFoundError, Observable } from 'rxjs';
 import { BrowseQuery } from 'src/base/dto.base';
 import { RESPONSE_MESSAGE_METADATA } from 'src/decorators/response-message.decorator';
 import { SuccessResponse } from 'src/types/response.type';
-import { DeleteResult, UpdateResult } from 'typeorm';
+import { DeleteResult, InsertResult, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class ResponseInterceptor<T>
@@ -63,9 +63,15 @@ export class ResponseInterceptor<T>
       } else data = instanceToPlain(res[0]);
     }
 
-    if (res instanceof DeleteResult || res instanceof UpdateResult) {
+    if (res instanceof DeleteResult || res instanceof UpdateResult)
       if (!res.affected) throw new NotFoundException('Entry not found');
-    }
+
+    if (
+      res instanceof DeleteResult ||
+      res instanceof UpdateResult ||
+      res instanceof InsertResult
+    )
+      data = undefined;
 
     return {
       status: true,
