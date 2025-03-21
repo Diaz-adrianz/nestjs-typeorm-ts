@@ -5,6 +5,8 @@ import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import { getMinioFullUrl } from 'src/utils/converter.util';
 import { Payment } from 'src/core/payments/entities/payment.entity';
+import { NotificationToken } from 'src/core/notifications/entities/notification-token.entity';
+import { UserNotification } from 'src/core/notifications/entities/user-notifications.entity';
 
 export enum UserProvider {
   EMAIL = 'email',
@@ -52,6 +54,12 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Payment, (payment) => payment.user)
   payments: Payment[];
+
+  @OneToMany(() => UserNotification, (un) => un.user)
+  notifications: UserNotification[];
+
+  @OneToMany(() => NotificationToken, (nt) => nt.user)
+  notificationTokens: NotificationToken[];
 
   avatarUrl?: string;
   @AfterLoad()
