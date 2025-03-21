@@ -14,7 +14,6 @@ import {
 } from './dto/create-notification.dto';
 import {
   MarkReadDto,
-  SetUsersDto,
   UpdateNotificationDto,
 } from './dto/update-notification.dto';
 import { Private } from 'src/decorators/private.decorator';
@@ -64,12 +63,6 @@ export class NotificationsController {
   @Private({ permissions: ['notifications/update'] })
   update(@ParamUUID('id') id: string, @Body() body: UpdateNotificationDto) {
     return this.notificationsService.update(id, body);
-  }
-
-  @Patch(':id/set-users')
-  @Private({ permissions: ['notifications/set-users'] })
-  setUsers(@ParamUUID('id') id: string, @Body() body: SetUsersDto) {
-    return this.notificationsService.setUsers(id, body);
   }
 
   @Delete(':id/soft')

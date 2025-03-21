@@ -1,4 +1,5 @@
 import {
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsEnum,
@@ -25,7 +26,14 @@ export class CreateNotificationDto {
 
   @IsJSON()
   @IsOptional()
-  metadata: Record<string, any>;
+  metadata?: Record<string, any>;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsUUID('4', { each: true })
+  @IsNotEmpty({ each: true })
+  @IsOptional()
+  userIds?: string[];
 }
 
 export class CreateTokenDto {
