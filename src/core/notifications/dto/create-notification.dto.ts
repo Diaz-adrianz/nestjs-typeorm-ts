@@ -39,5 +39,5 @@ export class CreateTokenDto {
 
   @IsBoolean()
   @IsOptional()
-  isActive: boolean = false;
+  isActive: boolean;
 }
