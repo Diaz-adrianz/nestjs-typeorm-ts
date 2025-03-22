@@ -5,7 +5,12 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { RefreshToken, SignInEmail } from './dto/sign-in.dto';
+import {
+  ForgotPasswordDto,
+  RefreshToken,
+  ResetPasswordDto,
+  SignInEmail,
+} from './dto/sign-in.dto';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { User, UserProvider } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -17,8 +22,6 @@ import { CacheService } from 'src/lib/cache/cache.service';
 import { SignUpEmail, VerifyEmail } from './dto/sign-up.dto';
 import { MailService } from 'src/lib/mail/mail.service';
 import { generateOtp } from 'src/utils/generator.utils';
-import { randomUUID } from 'crypto';
-import { OtpPayload } from 'src/types/cache.type';
 import { Role } from '../roles/entities/role.entity';
 import { UserRole } from '../users/entities/user-role.entity';
 
@@ -187,11 +190,7 @@ export class AuthService {
   }
 
   async getValidUser(where: FindOptionsWhere<User>): Promise<User> {
-    const user = await this.userRepo.findOne({
-      where,
-    });
-
-    if (!user) throw new NotFoundException('User not found');
+    const user = await this.userRepo.findOneByOrFail(where);
 
     if (!user.isVerified)
       throw new ForbiddenException('Email not verified yet');
@@ -199,6 +198,49 @@ export class AuthService {
     if (!user.isActive) throw new ForbiddenException('Access suspended');
 
     return user;
+  }
+
+  async forgotPassword(body: ForgotPasswordDto) {
+    const user = await this.getValidUser({ email: body.email });
+    if (user.provider != UserProvider.EMAIL)
+      throw new BadRequestException(
+        'The user was not registered using password.'
+      );
+
+    const otpCode = generateOtp();
+    const otpExpiry = +this.configService.getOrThrow('RESET_PASSWORD_EXPIRE');
+    const resetPageURL = `${this.configService.getOrThrow('CLIENT_PAGE_URL')}/auth/reset-password`;
+
+    await this.cacheService.set(
+      `reset-pass:${otpCode}`,
+      user.id,
+      otpExpiry * 1000
+    );
+    await this.mailService.send({
+      to: user.email,
+      subject: 'Email Verification',
+      html: {
+        fileName: 'reset-password.html',
+        payload: {
+          otpCode,
+          resetPageURL,
+          otpExpiry: otpExpiry / 60 + ' minutes',
+        },
+      },
+    });
+  }
+
+  async resetPassword(body: ResetPasswordDto) {
+    const userId = await this.cacheService.get<string>(
+      `reset-pass:${body.otp}`
+    );
+    if (!userId) throw new ForbiddenException('Invalid or expired OTP.');
+
+    const user = await this.getValidUser({ id: userId });
+    user.password = body.password;
+    await user.hashPassword();
+
+    await this.userRepo.save(user);
   }
 
   generateAccessToken(payload: JwtPayload) {

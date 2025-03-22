@@ -1,5 +1,12 @@
 import { BaseEntity } from 'src/base/entity.base';
-import { Entity, Column, OneToMany, BeforeInsert, AfterLoad } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  BeforeInsert,
+  AfterLoad,
+  BeforeUpdate,
+} from 'typeorm';
 import { UserRole } from './user-role.entity';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';

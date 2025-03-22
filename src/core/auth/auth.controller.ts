@@ -1,6 +1,11 @@
 import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RefreshToken, SignInEmail } from './dto/sign-in.dto';
+import {
+  ForgotPasswordDto,
+  RefreshToken,
+  ResetPasswordDto,
+  SignInEmail,
+} from './dto/sign-in.dto';
 import { User } from 'src/decorators/user.decorator';
 import { ReqUser } from 'src/types/jwt.type';
 import { JwtGuard } from './guards/jwt.guard';
@@ -14,6 +19,16 @@ import { ResponseMessage } from 'src/decorators/response-message.decorator';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('forgot-password')
+  forgotPassword(@Body() body: ForgotPasswordDto) {
+    return this.authService.forgotPassword(body);
+  }
+
+  @Post('reset-password')
+  resetPassword(@Body() body: ResetPasswordDto) {
+    return this.authService.resetPassword(body);
+  }
 
   @Post('signin-email')
   signInEmail(@Body() body: SignInEmail) {
